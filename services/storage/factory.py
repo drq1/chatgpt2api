@@ -5,7 +5,6 @@ from pathlib import Path
 
 from services.storage.base import StorageBackend
 from services.storage.database_storage import DatabaseStorageBackend
-from services.storage.git_storage import GitStorageBackend
 from services.storage.json_storage import JSONStorageBackend
 
 
@@ -45,31 +44,6 @@ def create_storage_backend(data_dir: Path) -> StorageBackend:
         
         return DatabaseStorageBackend(database_url)
     
-    elif backend_type == "git":
-        # Git 仓库存储
-        repo_url = os.getenv("GIT_REPO_URL", "").strip()
-        token = os.getenv("GIT_TOKEN", "").strip()
-        branch = os.getenv("GIT_BRANCH", "main").strip()
-        file_path = os.getenv("GIT_FILE_PATH", "accounts.json").strip()
-        auth_keys_file_path = os.getenv("GIT_AUTH_KEYS_FILE_PATH", "auth_keys.json").strip()
-        
-        if not repo_url:
-            raise ValueError(
-                "GIT_REPO_URL is required when using git storage backend. "
-                "Please set GIT_REPO_URL environment variable."
-            )
-        
-        print(f"[storage] Using Git storage: {_mask_token(repo_url)}, branch: {branch}, file: {file_path}")
-        
-        cache_dir = data_dir / "git_cache"
-        return GitStorageBackend(
-            repo_url=repo_url,
-            token=token,
-            branch=branch,
-            file_path=file_path,
-            auth_keys_file_path=auth_keys_file_path,
-            local_cache_dir=cache_dir,
-        )
     
     else:
         raise ValueError(
